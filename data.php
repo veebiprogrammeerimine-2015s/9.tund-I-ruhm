@@ -17,8 +17,15 @@
     // http://www.w3schools.com/php/php_file_upload.asp
     
     $target_dir = "profile_pics/";
+    // faili nimi oleks kasutaja id .jpg
+
+    $target_file = $target_dir.$_SESSION['user_id'].".jpg";
     
-    $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+    // KAS kasutajal on pilt olemas
+    if(file_exists($target_file)){
+        
+        $profile_image_url = $target_file;
+    }
     
     $uploadOk = 1;
     
@@ -34,34 +41,51 @@
             echo "File is not an image.";
             $uploadOk = 0;
         }
-    }
-    // Check if file already exists
-    if (file_exists($target_file)) {
-        echo "Sorry, file already exists.";
-        $uploadOk = 0;
-    }
-    // Check file size
-    if ($_FILES["fileToUpload"]["size"] > 1024000) {
-        echo "Sorry, your file is too large.";
-        $uploadOk = 0;
-    }
-    // Allow certain file formats
-    if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-    && $imageFileType != "gif" ) {
-        echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-        $uploadOk = 0;
-    }
-    // Check if $uploadOk is set to 0 by an error
-    if ($uploadOk == 0) {
-        echo "Sorry, your file was not uploaded.";
-    // if everything is ok, try to upload file
-    } else {
-        if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-            echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+    
+        // Check if file already exists
+        if (file_exists($target_file)) {
+            echo "Sorry, file already exists.";
+            $uploadOk = 0;
+        }
+        // Check file size
+        if ($_FILES["fileToUpload"]["size"] > 1024000) {
+            echo "Sorry, your file is too large.";
+            $uploadOk = 0;
+        }
+        // Allow certain file formats
+        if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+        && $imageFileType != "gif" ) {
+            echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+            $uploadOk = 0;
+        }
+        // Check if $uploadOk is set to 0 by an error
+        if ($uploadOk == 0) {
+            echo "Sorry, your file was not uploaded.";
+        // if everything is ok, try to upload file
         } else {
-            echo "Sorry, there was an error uploading your file.";
+            if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+                echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+                
+                header("Location: data.php");
+                exit();
+                
+            } else {
+                echo "Sorry, there was an error uploading your file.";
+            }
         }
     }
+    
+    
+    if(isset($_GET["delete_image"])){
+        // kustutan pildi/faili
+        unlink($profile_image_url);
+        header("Location: data.php");
+        exit();
+        
+    }
+    
+    
+    
 ?>
     
 
@@ -86,6 +110,13 @@ endif; ?>
 
 <h3> Profiilipilt </h3>
 
+<?php if(isset($profile_image_url)): ?>
+
+    <div style="width:200px; height:200px; background-image: url(<?=$profile_image_url;?>); background-size: cover; background-position-x: center; background-position-y: center;" ></div>
+    <br><a href="?delete_image=1">Delete image</a>
+    
+<?php else: ?>
+
 
 <form action="data.php" method="post" enctype="multipart/form-data">
     Vali profiilipilt:
@@ -93,6 +124,7 @@ endif; ?>
     <input type="submit" value="Upload Image" name="submit">
 </form>
 
+<?php endif; ?>
 
 
 
