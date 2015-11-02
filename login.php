@@ -57,6 +57,8 @@
                     $_SESSION["user_id"] = $login_response->success->user->id;
                     $_SESSION["user_email"] = $login_response->success->user->email;
                     
+                    $_SESSION["login_message"] = $login_response->success->message;
+                    
                     header("Location: data.php");
                 }
             
